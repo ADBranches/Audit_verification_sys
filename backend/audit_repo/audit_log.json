@@ -1,0 +1,20 @@
+[
+  {
+    "transaction_id": "TZ001",
+    "amount": 2000,
+    "member_id": "M1",
+    "description": "Loan Payment Installation",
+    "created_at": "2026-09-02 23:26:09",
+    "method": "Admin",
+    "hash": "8d7d484c65743442436ff8d303ffe8fa7f364a82580edb7554fee91ab03c9766"
+  },
+  {
+    "transaction_id": "MM1788381851531",
+    "amount": 40000,
+    "member_id": "M13",
+    "description": "Mobile Money Payment (AIRTEL)",
+    "created_at": "2026-09-02 23:44:11",
+    "method": "Mobile Money",
+    "hash": "9b0efe2fbc3c3a1d13a202fe9f3ad8b82239b6eb770e2d066e428e308c3c2bd0"
+  }
+]

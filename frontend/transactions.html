@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>View/Add Transactions (Admin)</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="card">
+    <h1>View/Add Transactions (Admin)</h1>
+
+    <!-- Add Transaction Form -->
+    <section>
+      <h2>Add Transaction</h2>
+      <form id="transactionForm">
+        <input type="text" id="transaction_id" placeholder="Transaction ID" required>
+        <input type="number" id="amount" placeholder="Amount" step="0.01" required>
+        <input type="text" id="member_id" placeholder="Member ID" required>
+        <input type="text" id="description" placeholder="Description" required>
+        <button type="submit">Add Transaction</button>
+      </form>
+      <pre id="recordResponse"></pre>
+    </section>
+
+    <!-- View Transactions -->
+    <section>
+      <h2>Stored Transactions</h2>
+      <input type="text" id="searchBox" placeholder="Search by ID, Member, Type, or Date">
+      <table id="transactionsTable">
+        <thead>
+          <tr>
+            <th>Transaction ID</th>
+            <th>Amount</th>
+            <th>Member ID</th>
+            <th>Description</th>
+            <th>Date/Time</th>
+            <th>Method</th>
+            <th>Hash</th>
+          </tr>
+        </thead>
+        <tbody id="transactionsBody"></tbody>
+      </table>
+      <button onclick="logout()">Logout</button>
+      <button onclick="goHome()">Home</button>
+    </section>
+  </div>
+  <script src="transactions.js"></script>
+  <script>
+    function goHome() {
+      window.location.href = "index.html";
+    }
+  </script>
+</body>
+</html>

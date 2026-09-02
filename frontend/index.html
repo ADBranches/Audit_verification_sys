@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Audit Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="card">
+    <h1>Audit Dashboard</h1>
+
+    <!-- Verify Transaction -->
+    <section>
+      <h2>Verify Transaction</h2>
+      <form id="verifyForm">
+        <input type="text" id="verify_id" placeholder="Transaction ID" required>
+        <button type="submit">Verify</button>
+      </form>
+      <pre id="verifyResponse"></pre>
+    </section>
+
+    <!-- Mobile Money Simulation -->
+    <section>
+      <h2>Pay via Mobile Money</h2>
+      <button onclick="showPaymentOptions()">Pay via Mobile Money</button>
+
+      <div id="paymentSection" style="display:none; margin-top:15px;">
+        <label for="network">Choose Network:</label>
+        <select id="network">
+          <option value="">--Select--</option>
+          <option value="airtel">Airtel Money</option>
+          <option value="mtn">MTN Mobile Money</option>
+        </select>
+
+        <input type="text" id="phoneNumber" placeholder="Enter 10-digit number">
+        <input type="number" id="mobileAmount" placeholder="Amount" step="0.01" required>
+        <input type="text" id="mobileMember" placeholder="Member ID" required>
+        <button onclick="simulatePayment()">Proceed</button>
+
+        <pre id="paymentResponse"></pre>
+      </div>
+    </section>
+
+    <!-- Link to Admin Transactions -->
+    <section>
+      <h2>Admin Section</h2>
+      <a href="login.html">Go to View/Add Transactions (Admin)</a>
+    </section>
+
+    <!-- About Us -->
+    <section>
+      <h2>About Us</h2>
+      <p>
+        Our SACCO is dedicated to financial transparency, accountability, and empowering our members.
+        We provide secure transaction recording, verification, and mobile money integration to ensure
+        trust and efficiency in all financial dealings.
+      </p>
+    </section>
+
+    <!-- Contact Us -->
+    <section>
+      <h2>Contact Us</h2>
+      <ul>
+        <li><strong>SACCO Chairperson:</strong> 0753588178 | Email: keyskenneth256@gmail.com</li>
+        <li><strong>SACCO Vice Chairperson:</strong> 0765541847 | Email: sebattakenneth337@gmail.com</li>
+        <li><strong>SACCO Accountant/Treasurer:</strong> 0757634726 | Email: Bensonbogere12@gmail.com</li>
+      </ul>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
