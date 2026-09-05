@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Audit Dashboard</title>
+  <title>SACCO Dashboard</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -22,26 +22,36 @@
     <!-- Mobile Money Simulation -->
     <section>
       <h2>Pay via Mobile Money</h2>
-      <button onclick="showPaymentOptions()">Pay via Mobile Money</button>
-
-      <div id="paymentSection" style="display:none; margin-top:15px;">
-        <label for="network">Choose Network:</label>
+      <form id="mobileMoneyForm">
         <select id="network">
-          <option value="">--Select--</option>
-          <option value="airtel">Airtel Money</option>
-          <option value="mtn">MTN Mobile Money</option>
+          <option value="MTN MoMo">MTN MoMo</option>
+          <option value="Airtel Money">Airtel Money</option>
+        </select>
+        <input type="text" id="phoneNumber" placeholder="Phone Number" required>
+        <input type="number" id="mmAmount" placeholder="Amount" step="0.01" required>
+        <input type="text" id="mmMemberId" placeholder="Member ID" required>
+
+        <!-- Description changed to dropdown -->
+        <select id="mmDescription" required>
+          <option value="">-- Select Fee --</option>
+          <option value="Entry/Membership Fee">Entry / Membership Fee</option>
+          <option value="Shares (Capital)">Shares (Capital)</option>
+          <option value="Compulsory Savings">Compulsory Savings</option>
+          <option value="Annual Subscription">Annual Subscription</option>
+          <option value="Welfare Contribution">Welfare Contribution</option>
+          <option value="Account Maintenance Fee">Account Maintenance Fee</option>
+          <option value="Loan Application Fee">Loan Application Fee</option>
+          <option value="Loan Insurance / Risk Fund">Loan Insurance / Risk Fund</option>
+          <option value="Late Payment Penalty">Late Payment Penalty</option>
+          <option value="Withdrawal Fee">Withdrawal Fee</option>
         </select>
 
-        <input type="text" id="phoneNumber" placeholder="Enter 10-digit number">
-        <input type="number" id="mobileAmount" placeholder="Amount" step="0.01" required>
-        <input type="text" id="mobileMember" placeholder="Member ID" required>
-        <button onclick="simulatePayment()">Proceed</button>
-
-        <pre id="paymentResponse"></pre>
-      </div>
+        <button type="submit">Proceed</button>
+      </form>
+      <pre id="mobileMoneyResponse"></pre>
     </section>
 
-    <!-- Link to Admin Transactions -->
+    <!-- Admin Section -->
     <section>
       <h2>Admin Section</h2>
       <a href="login.html">Go to View/Add Transactions (Admin)</a>
@@ -66,8 +76,22 @@
         <li><strong>SACCO Accountant/Treasurer:</strong> 0757634726 | Email: Bensonbogere12@gmail.com</li>
       </ul>
     </section>
+
+    <!-- Member Logout -->
+    <section style="text-align:center; margin-top:30px;">
+      <button onclick="memberLogout()">Logout</button>
+    </section>
   </div>
 
-  <script src="app.js"></script>
+  <script src="index.js"></script>
+  <script>
+    function memberLogout() {
+      sessionStorage.removeItem("memberLoggedIn");
+      sessionStorage.removeItem("memberId");
+      sessionStorage.removeItem("logoutAt");
+      alert("You have been logged out.");
+      window.location.href = "member_login.html";
+    }
+  </script>
 </body>
 </html>

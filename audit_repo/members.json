@@ -1,0 +1,17 @@
+{
+  "M001": {
+    "password": "user",
+    "lockout_until": 0,
+    "attempts": 3
+  },
+  "M002": {
+    "password": "user2",
+    "lockout_until": 0,
+    "attempts": 3
+  },
+  "M003": {
+    "password": "user3",
+    "lockout_until": 0,
+    "attempts": 3
+  }
+}

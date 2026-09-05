@@ -1,0 +1,64 @@
+[
+  {
+    "transaction_id": "T0001",
+    "amount": 20000.0,
+    "member_id": "M16",
+    "description": "Entry fee",
+    "date_time": "2026-09-05T08:31:00.694913",
+    "method": "manual",
+    "hash": 103096702073794567
+  },
+  {
+    "transaction_id": "T0003",
+    "amount": 40000.0,
+    "member_id": "M12",
+    "description": "Share capital",
+    "date_time": "2026-09-05T08:53:21.724119",
+    "method": "manual",
+    "hash": -3993499251124487919
+  },
+  {
+    "transaction_id": "MM-1788588163",
+    "amount": 40000.0,
+    "member_id": "M20",
+    "description": "Loan Repayment",
+    "date_time": "2026-09-05T09:02:43.072658",
+    "method": "mobile_money",
+    "network": "Airtel Money",
+    "phone_number": "0751631327",
+    "hash": 5928176317745696326
+  },
+  {
+    "transaction_id": "MM-1788593876",
+    "amount": 50000.0,
+    "member_id": "M13",
+    "description": "loan Repayment Installment",
+    "date_time": "2026-09-05T10:37:56.804765",
+    "method": "mobile_money",
+    "network": "Airtel Money",
+    "phone_number": "0751631327",
+    "hash": -3526063507999755072
+  },
+  {
+    "transaction_id": "MM-1788594353",
+    "amount": 40000.0,
+    "member_id": "M13",
+    "description": "Share Capital",
+    "date_time": "2026-09-05T10:45:53.033702",
+    "method": "mobile_money",
+    "network": "Airtel Money",
+    "phone_number": "0751631327",
+    "hash": -8046883739901780763
+  },
+  {
+    "transaction_id": "MM-1788601517",
+    "amount": 30000.0,
+    "member_id": "M15",
+    "description": "Shares (Capital)",
+    "date_time": "2026-09-05T12:45:17.856097",
+    "method": "mobile_money",
+    "network": "Airtel Money",
+    "phone_number": "0765541847",
+    "hash": -6826996799229142637
+  }
+]
