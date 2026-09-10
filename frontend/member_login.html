@@ -5,56 +5,22 @@
   <title>Member Login</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <div class="card">
+<body class="auth-shell">
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <main id="main-content" class="card auth-card">
     <h1>Member Login</h1>
     <form id="loginForm">
-      <input type="text" id="memberId" placeholder="Member ID" required>
-      <input type="password" id="password" placeholder="Password" required>
+      <label for="memberId">Member ID</label>
+      <input type="text" id="memberId" name="member_id" placeholder="Example: M001" autocomplete="username" required>
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" placeholder="Enter password" autocomplete="current-password" required>
       <button type="submit">Login</button>
     </form>
-    <pre id="loginResponse"></pre>
-  </div>
+    <pre id="loginResponse" class="status-panel" role="alert" aria-live="assertive" aria-atomic="true"></pre>
+  </main>
 
-  <!-- Integrated script for attempts and lockouts -->
-  <script>
-    document.getElementById("loginForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const memberId = document.getElementById("memberId").value.trim();
-      const password = document.getElementById("password").value.trim();
-      const responseBox = document.getElementById("loginResponse");
-
-      try {
-        const res = await fetch("http://127.0.0.1:8000/member_login", {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({ member_id: memberId, password: password })
-        });
-
-        if (!res.ok) {
-          const error = await res.json();
-          // Show backend detail (attempts remaining or lockout message)
-          responseBox.textContent = "❌ " + error.detail;
-          return;
-        }
-
-        const result = await res.json();
-        responseBox.textContent = "✅ " + result.message;
-
-        // Save login state
-        sessionStorage.setItem("memberLoggedIn", "true");
-        sessionStorage.setItem("memberId", memberId);
-
-        // Set auto logout after 30 minutes
-        const logoutTime = Date.now() + (30 * 60 * 1000);
-        sessionStorage.setItem("logoutAt", logoutTime);
-
-        window.location.href = "index.html";
-      } catch (err) {
-        responseBox.textContent = "❌ Error: " + err.message;
-      }
-    });
-  </script>
+  <script src="js/config.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="member_login.js"></script>
 </body>
 </html>

@@ -6,7 +6,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
   const responseBox = document.getElementById("loginResponse");
 
   try {
-    const res = await fetch("http://127.0.0.1:8000/member_login", {
+    const res = await fetch(`${window.AUDIT_APP_CONFIG.apiBaseUrl}/member_login`, {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({ member_id: memberId, password: password })

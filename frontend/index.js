@@ -34,7 +34,7 @@ document.getElementById("mobileMoneyForm").addEventListener("submit", async (e) 
     // Step 2: Simulate short delay before backend call
     setTimeout(async () => {
       try {
-        const res = await fetch("http://127.0.0.1:8000/mobile_money", {
+        const res = await fetch(`${window.AUDIT_APP_CONFIG.apiBaseUrl}/mobile_money`, {
           method: "POST",
           headers: {"Content-Type": "application/json"},
           body: JSON.stringify({
@@ -72,7 +72,7 @@ document.getElementById("verifyForm")?.addEventListener("submit", async (e) => {
   const responseBox = document.getElementById("verifyResponse");
 
   try {
-    const res = await fetch("http://127.0.0.1:8000/transactions");
+    const res = await fetch(`${window.AUDIT_APP_CONFIG.apiBaseUrl}/transactions`);
     if (!res.ok) {
       const error = await res.json();
       responseBox.textContent = "❌ " + error.detail;
