@@ -1,16 +1,32 @@
 {
+  "M003": {
+    "password": "$2b$12$5/NkGbK5QdoiU/uRhLMDTOBQ.l/i5/3Q5ECsRn47Kw.dungfpIyye",
+    "lockout_until": 0,
+    "attempts": 3
+  },
+  "M004": {
+    "password": "$2b$12$OM58TfS7m69e/Enhtm7sauRMp0tZ5UtK0Ficx5nfsTpLq5ll3o4VO",
+    "lockout_until": 0,
+    "attempts": 3
+  },
+  "M005": {
+    "password": "$2b$12$ZxRswYpjm1dso85PWFIPl.vu1jJtOdoOzRO6pFz7mSfoXVkFhmqyG",
+    "lockout_until": 0,
+    "attempts": 3
+  },
+  "M006": {
+    "password": "$2b$12$Vt/VeQ/uVu4dLLtylX1O0.AmhqYpnui9eyhs9nxbTVJl3LAJCPWO2",
+    "email": "keyskenneth256@gmail.com",
+    "lockout_until": 0,
+    "attempts": 3
+  },
   "M001": {
-    "password": "user",
+    "password": "$2b$12$N0epm65iEDosn74q9jX9UOTsPma47HdSbitJcq92gefrXB7aBN77i",
     "lockout_until": 0,
     "attempts": 3
   },
   "M002": {
-    "password": "user2",
-    "lockout_until": 0,
-    "attempts": 3
-  },
-  "M003": {
-    "password": "user3",
+    "password": "$2b$12$ShB/M9C27V3dj0rRduEMqeC.Le0I9zSU1rgUWimlOFeGmn.vgxyqa",
     "lockout_until": 0,
     "attempts": 3
   }

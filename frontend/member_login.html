@@ -14,47 +14,19 @@
       <button type="submit">Login</button>
     </form>
     <pre id="loginResponse"></pre>
+
+    <!-- ✅ Forgot Password trigger -->
+    <button id="showForgotPassword" style="margin-top:15px;">Forgot Password?</button>
+
+    <!-- ✅ Hidden Forgot Password form -->
+    <form id="forgotPasswordForm" style="display:none; margin-top:10px;">
+      <input type="email" id="forgotEmail" placeholder="Enter your email" required>
+      <button type="submit">Send Reset Link</button>
+    </form>
+    <pre id="forgotPasswordResponse"></pre>
   </div>
 
-  <!-- Integrated script for attempts and lockouts -->
-  <script>
-    document.getElementById("loginForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const memberId = document.getElementById("memberId").value.trim();
-      const password = document.getElementById("password").value.trim();
-      const responseBox = document.getElementById("loginResponse");
-
-      try {
-        const res = await fetch("http://127.0.0.1:8000/member_login", {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({ member_id: memberId, password: password })
-        });
-
-        if (!res.ok) {
-          const error = await res.json();
-          // Show backend detail (attempts remaining or lockout message)
-          responseBox.textContent = "❌ " + error.detail;
-          return;
-        }
-
-        const result = await res.json();
-        responseBox.textContent = "✅ " + result.message;
-
-        // Save login state
-        sessionStorage.setItem("memberLoggedIn", "true");
-        sessionStorage.setItem("memberId", memberId);
-
-        // Set auto logout after 30 minutes
-        const logoutTime = Date.now() + (30 * 60 * 1000);
-        sessionStorage.setItem("logoutAt", logoutTime);
-
-        window.location.href = "index.html";
-      } catch (err) {
-        responseBox.textContent = "❌ Error: " + err.message;
-      }
-    });
-  </script>
+  <!-- ✅ Load JS after DOM is ready -->
+  <script src="member_login.js"></script>
 </body>
 </html>

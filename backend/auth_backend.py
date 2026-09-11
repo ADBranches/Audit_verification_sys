@@ -1,13 +1,11 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import time, json, os
+import time, json, os, secrets, random, re, bcrypt
 from datetime import datetime
-import random
 
 app = FastAPI()
 
-# Enable CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -16,19 +14,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Paths
 AUDIT_FOLDER = "audit_repo"
 AUDIT_LOG = os.path.join(AUDIT_FOLDER, "audit_log.json")
 MEMBERS_FILE = os.path.join(AUDIT_FOLDER, "members.json")
-
 os.makedirs(AUDIT_FOLDER, exist_ok=True)
 
-# Initialize members file if missing
+def hash_password(password: str) -> str:
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(password.encode("utf-8"), salt).decode("utf-8")
+
+def verify_password(password: str, hashed: str) -> bool:
+    return bcrypt.checkpw(password.encode("utf-8"), hashed.encode("utf-8"))
+
 if not os.path.exists(MEMBERS_FILE):
     members = {
-        "M001": {"password": "user", "lockout_until": 0, "attempts": 3},
-        "M002": {"password": "user2", "lockout_until": 0, "attempts": 3},
-        "M003": {"password": "user3", "lockout_until": 0, "attempts": 3},
+        "M001": {"password": hash_password("user"), "email": "user1@example.com", "lockout_until": 0, "attempts": 3},
+        "M002": {"password": hash_password("user2"), "email": "user2@example.com", "lockout_until": 0, "attempts": 3},
+        "M003": {"password": hash_password("user3"), "email": "user3@example.com", "lockout_until": 0, "attempts": 3},
     }
     with open(MEMBERS_FILE, "w") as f:
         json.dump(members, f, indent=2)
@@ -51,6 +53,7 @@ class Transaction(BaseModel):
     member_id: str
     description: str
     method: str = "manual"
+    phone_number: str = None
 
 class MobileMoneyRequest(BaseModel):
     member_id: str
@@ -59,7 +62,51 @@ class MobileMoneyRequest(BaseModel):
     description: str
     network: str
 
-# ---------------- AUTH ----------------
+class AddMemberRequest(BaseModel):
+    member_id: str
+    password: str
+    email: str
+
+class ModifyMemberRequest(BaseModel):
+    new_member_id: str
+    new_password: str
+
+class ResetPasswordRequest(BaseModel):
+    email: str
+    new_password: str
+
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+# ---------------- ADMIN 2FA ----------------
+admin_codes = {}
+
+class AdminVerifyRequest(BaseModel):
+    member_id: str
+    code: str
+
+@app.post("/admin_login")
+def admin_login(req: LoginRequest):
+    if req.member_id == "admin" and req.password == "admin":
+        code = str(secrets.randbelow(1000000)).zfill(6)
+        admin_codes[req.member_id] = {"code": code, "expires": time.time() + 300}
+        return {"step": "2fa_required", "message": "Enter the 2FA code", "code": code}
+    else:
+        raise HTTPException(status_code=401, detail="Invalid admin credentials")
+
+@app.post("/admin_verify")
+def admin_verify(req: AdminVerifyRequest):
+    record = admin_codes.get(req.member_id)
+    if not record:
+        raise HTTPException(status_code=400, detail="No 2FA code generated")
+    if time.time() > record["expires"]:
+        raise HTTPException(status_code=400, detail="Code expired")
+    if req.code != record["code"]:
+        raise HTTPException(status_code=401, detail="Invalid code")
+    del admin_codes[req.member_id]
+    return {"success": True, "message": "Admin login successful"}
+
+# ---------------- MEMBER LOGIN ----------------
 @app.post("/member_login")
 def member_login(req: LoginRequest):
     members = load_members()
@@ -67,25 +114,100 @@ def member_login(req: LoginRequest):
     if not member:
         raise HTTPException(status_code=401, detail="Invalid Member ID")
 
-    # Check lockout
     if time.time() < member["lockout_until"]:
         minutes_left = int((member["lockout_until"] - time.time()) / 60)
         raise HTTPException(status_code=403, detail=f"Account locked. Try again in {minutes_left} minutes.")
 
-    # Validate password
-    if req.password == member["password"]:
-        member["attempts"] = 3  # reset attempts
+    if verify_password(req.password, member["password"]):
+        member["attempts"] = 3
         save_members(members)
         return {"success": True, "message": "Login successful"}
     else:
         member["attempts"] -= 1
         if member["attempts"] <= 0:
-            member["lockout_until"] = time.time() + 2 * 60 * 60  # 2 hours lockout
-            member["attempts"] = 3  # reset attempts after lockout
+            member["lockout_until"] = time.time() + 2 * 60 * 60
+            member["attempts"] = 3
             save_members(members)
             raise HTTPException(status_code=403, detail="Too many failed attempts. Account locked for 2 hours.")
         save_members(members)
         raise HTTPException(status_code=401, detail=f"Invalid password. Attempts remaining: {member['attempts']}")
+
+# ---------------- MEMBER MANAGEMENT ----------------
+def is_strong_password(password: str) -> bool:
+    return (
+        len(password) >= 8 and
+        re.search(r"[A-Z]", password) and
+        re.search(r"[a-z]", password) and
+        re.search(r"[0-9]", password) and
+        re.search(r"[^A-Za-z0-9]", password)
+    )
+
+@app.post("/add_member")
+def add_member(req: AddMemberRequest):
+    if not is_strong_password(req.password):
+        raise HTTPException(
+            status_code=400,
+            detail="Password must contain at least 8 characters, including uppercase, lowercase, number, and special character."
+        )
+
+    members = load_members()
+    if req.member_id in members:
+        raise HTTPException(status_code=400, detail="Member ID already exists")
+    members[req.member_id] = {
+        "password": hash_password(req.password),
+        "email": req.email,
+        "lockout_until": 0,
+        "attempts": 3
+    }
+    save_members(members)
+    return {"success": True, "message": f"Member {req.member_id} added successfully"}
+
+@app.post("/reset_password")
+def reset_password(req: ResetPasswordRequest):
+    members = load_members()
+    for member_id, data in members.items():
+        if data.get("email") == req.email:
+            if not is_strong_password(req.new_password):
+                raise HTTPException(status_code=400, detail="New password does not meet requirements")
+            data["password"] = hash_password(req.new_password)
+            save_members(members)
+            return {"success": True, "message": f"Password reset for {member_id} successful"}
+    raise HTTPException(status_code=404, detail="Email not found")
+
+@app.post("/forgot_password")
+def forgot_password(req: ForgotPasswordRequest):
+    members = load_members()
+    for member_id, data in members.items():
+        if data.get("email") == req.email:
+            return {"success": True, "message": f"Password reset link sent to {req.email} (simulation)."}
+    raise HTTPException(status_code=404, detail="Email not found")
+
+@app.get("/members")
+def get_members():
+    return load_members()
+
+@app.delete("/delete_member/{member_id}")
+def delete_member(member_id: str):
+    members = load_members()
+    if member_id not in members:
+        raise HTTPException(status_code=404, detail="Member not found")
+    del members[member_id]
+    save_members(members)
+    return {"success": True, "message": f"Member {member_id} deleted successfully"}
+
+@app.put("/modify_member/{member_id}")
+def modify_member(member_id: str, req: ModifyMemberRequest):
+    members = load_members()
+    if member_id not in members:
+        raise HTTPException(status_code=404, detail="Member not found")
+    del members[member_id]
+    members[req.new_member_id] = {
+        "password": hash_password(req.new_password),
+        "lockout_until": 0,
+        "attempts": 3
+    }
+    save_members(members)
+    return {"success": True, "message": f"Member {member_id} modified to {req.new_member_id} successfully"}
 
 # ---------------- TRANSACTIONS ----------------
 @app.get("/transactions")
@@ -95,9 +217,10 @@ def get_transactions():
             data = json.load(f)
         if not isinstance(data, list):
             data = []
-        return {"transactions": data}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error reading transactions: {str(e)}")
+    except Exception:
+        data = []
+    total_amount = sum(tx.get("amount", 0) for tx in data)
+    return {"transactions": data, "total_amount_received": total_amount}
 
 @app.post("/transactions")
 def add_transaction(tx: Transaction):
@@ -107,56 +230,17 @@ def add_transaction(tx: Transaction):
                 data = json.load(f)
             except:
                 data = []
+    except FileNotFoundError:
+        data = []
 
-        new_tx = {
-            "transaction_id": tx.transaction_id,
-            "amount": tx.amount,
-            "member_id": tx.member_id,
-            "description": tx.description,
-            "date_time": datetime.now().isoformat(),
-            "method": tx.method,
-            "hash": hash(f"{tx.transaction_id}{tx.amount}{tx.member_id}{tx.description}{time.time()}")
-        }
-        data.append(new_tx)
-
-        with open(AUDIT_LOG, "w") as f:
-            json.dump(data, f, indent=2)
-
-        return {"success": True, "transaction": new_tx}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error adding transaction: {str(e)}")
-
-# ---------------- MOBILE MONEY (SIMULATION) ----------------
-@app.post("/mobile_money")
-def simulate_mobile_money(req: MobileMoneyRequest):
-    try:
-        with open(AUDIT_LOG, "r") as f:
-            try:
-                data = json.load(f)
-            except:
-                data = []
-
-        success = random.choice([True, True, False])  # 2/3 chance success
-
-        if not success:
-            raise HTTPException(status_code=402, detail=f"{req.network} payment failed (simulation).")
-
-        new_tx = {
-            "transaction_id": f"MM-{int(time.time())}",
-            "amount": req.amount,
-            "member_id": req.member_id,
-            "description": req.description,
-            "date_time": datetime.now().isoformat(),
-            "method": "mobile_money",
-            "network": req.network,
-            "phone_number": req.phone_number,
-            "hash": hash(f"{req.member_id}{req.amount}{req.phone_number}{time.time()}")
-        }
-        data.append(new_tx)
-
-        with open(AUDIT_LOG, "w") as f:
-            json.dump(data, f, indent=2)
-
-        return {"success": True, "transaction": new_tx}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error simulating mobile money: {str(e)}")
+    new_tx = {
+        "transaction_id": tx.transaction_id,
+        "amount": tx.amount,
+        "member_id": tx.member_id,
+        "description": tx.description,
+        "method": tx.method,
+    }
+    data.append(new_tx)
+    with open(AUDIT_LOG, "w") as f:
+        json.dump(data, f)
+    return {"success": True, "message": "Transaction added successfully"}

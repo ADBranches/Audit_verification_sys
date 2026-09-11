@@ -9,22 +9,83 @@
   <div class="card">
     <h1>Admin Transactions</h1>
 
-    <!-- Manual Transaction Form -->
+    <!-- Balance Display -->
+    <h3 id="balance">Current Balance: 0</h3>
+
+    <!-- Withdraw Form -->
     <section>
-      <h2>Add Manual Transaction</h2>
-      <form id="addTransactionForm">
-        <input type="text" id="transactionId" placeholder="Transaction ID" required>
-        <input type="number" id="amount" placeholder="Amount" step="0.01" required>
-        <input type="text" id="memberId" placeholder="Member ID" required>
-        <input type="text" id="description" placeholder="Description" required>
-        <button type="submit">Add Transaction</button>
+      <h2>Withdraw Funds</h2>
+      <form id="withdrawForm">
+        <input type="number" id="withdrawAmount" placeholder="Amount" step="0.01" required>
+        <input type="text" id="withdrawMemberId" placeholder="Member ID" required>
+        <input type="text" id="withdrawDescription" placeholder="Description" required>
+        <input type="text" id="withdrawPhoneNumber" placeholder="Phone Number" required> <!-- ✅ added -->
+        <button type="submit">Withdraw</button>
       </form>
-      <pre id="transactionsResponse"></pre>
+      <pre id="withdrawResponse"></pre>
+    </section>
+
+    <!-- Add New Member -->
+    <section>
+      <h2>Add New Member</h2>
+      <form id="addMemberForm" style="display:flex; gap:10px; flex-wrap:wrap;">
+        <input type="text" id="newMemberId" placeholder="Member ID" required>
+        <input type="text" id="newMemberPassword" placeholder="Password" required>
+        <input type="email" id="newMemberEmail" placeholder="Email" required> <!-- ✅ inline -->
+        <button type="submit">Add Member</button>
+      </form>
+      <!-- ✅ Strong password requirements message -->
+      <small id="passwordRequirements" style="display:block; margin-top:5px;">
+        Password must contain at least 8 characters, including uppercase, lowercase, number, and special character.
+      </small>
+      <pre id="addMemberResponse"></pre>
+    </section>
+
+    <!-- Reset Password -->
+    <section>
+      <h2>Reset Password</h2>
+      <form id="resetPasswordForm" style="display:flex; gap:10px; flex-wrap:wrap;">
+        <input type="email" id="resetEmail" placeholder="Email" required>
+        <input type="text" id="resetNewPassword" placeholder="New Password" required>
+        <button type="submit">Reset Password</button>
+      </form>
+      <pre id="resetPasswordResponse"></pre>
+    </section>
+
+    <!-- View Members Button -->
+    <section>
+      <button onclick="toggleMembers()">View All Members</button>
+    </section>
+
+    <!-- Members Table -->
+    <section id="membersSection" style="display:none; margin-top:20px;">
+      <h2>All Members</h2>
+      <!-- 🔎 Search Members -->
+      <input type="text" id="searchMembersBox" placeholder="Search Members by ID or Password">
+      <button onclick="searchMembers()">Search</button>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Member ID</th>
+            <th>Password</th>
+            <th>Email</th> <!-- ✅ added -->
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="membersTableBody">
+          <tr><td colspan="4">Loading...</td></tr>
+        </tbody>
+      </table>
     </section>
 
     <!-- Stored Transactions -->
     <section>
       <h2>Stored Transactions</h2>
+      <!-- 🔎 Search Transactions -->
+      <input type="text" id="searchTransactionsBox" placeholder="Search Transactions by ID, Member, or Description">
+      <button onclick="searchTransactions()">Search</button>
+
       <table>
         <thead>
           <tr>
@@ -36,11 +97,10 @@
             <th>Method</th>
             <th>Network</th>
             <th>Phone</th>
-            <th>Hash</th>
           </tr>
         </thead>
         <tbody id="transactionsTableBody">
-          <tr><td colspan="9">Loading...</td></tr>
+          <tr><td colspan="8">Loading...</td></tr>
         </tbody>
       </table>
     </section>
@@ -60,6 +120,20 @@
       alert("You have been logged out.");
       window.location.href = "member_login.html";
     }
+
+    function toggleMembers() {
+      const section = document.getElementById("membersSection");
+      if (section.style.display === "none") {
+        section.style.display = "block";
+        loadMembers();
+      } else {
+        section.style.display = "none";
+      }
+    }
+
+    window.onload = () => {
+      loadTransactions();
+    };
   </script>
 </body>
 </html>
