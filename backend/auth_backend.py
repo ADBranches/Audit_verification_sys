@@ -1,6 +1,11 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+
+try:
+    from backend.integrity import compute_transaction_hash, verify_transaction_hash
+except ModuleNotFoundError:
+    from integrity import compute_transaction_hash, verify_transaction_hash
 import time, json, os
 from datetime import datetime
 import random
@@ -108,6 +113,9 @@ def add_transaction(tx: Transaction):
             except:
                 data = []
 
+        if any(record.get("transaction_id") == tx.transaction_id for record in data):
+            raise HTTPException(status_code=409, detail="Transaction ID already exists")
+
         new_tx = {
             "transaction_id": tx.transaction_id,
             "amount": tx.amount,
@@ -115,16 +123,36 @@ def add_transaction(tx: Transaction):
             "description": tx.description,
             "date_time": datetime.now().isoformat(),
             "method": tx.method,
-            "hash": hash(f"{tx.transaction_id}{tx.amount}{tx.member_id}{tx.description}{time.time()}")
+            "network": None,
+            "phone_number": None
         }
+        new_tx["hash"] = compute_transaction_hash(new_tx)
         data.append(new_tx)
 
         with open(AUDIT_LOG, "w") as f:
             json.dump(data, f, indent=2)
 
         return {"success": True, "transaction": new_tx}
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error adding transaction: {str(e)}")
+
+
+@app.get("/verify/{transaction_id}")
+def verify_transaction(transaction_id: str):
+    try:
+        with open(AUDIT_LOG, "r") as audit_file:
+            data = json.load(audit_file)
+        transaction = next((record for record in data if record.get("transaction_id") == transaction_id), None)
+        if transaction is None:
+            raise HTTPException(status_code=404, detail="Transaction not found")
+        verified = verify_transaction_hash(transaction)
+        return {"transaction_id": transaction_id, "verified": verified, "status": "verified" if verified else "tampered"}
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(status_code=500, detail=f"Error verifying transaction: {error}") from error
 
 # ---------------- MOBILE MONEY (SIMULATION) ----------------
 @app.post("/mobile_money")
@@ -141,22 +169,28 @@ def simulate_mobile_money(req: MobileMoneyRequest):
         if not success:
             raise HTTPException(status_code=402, detail=f"{req.network} payment failed (simulation).")
 
+        transaction_id = f"MM-{time.time_ns()}"
+        if any(record.get("transaction_id") == transaction_id for record in data):
+            raise HTTPException(status_code=409, detail="Transaction ID already exists")
+
         new_tx = {
-            "transaction_id": f"MM-{int(time.time())}",
+            "transaction_id": transaction_id,
             "amount": req.amount,
             "member_id": req.member_id,
             "description": req.description,
             "date_time": datetime.now().isoformat(),
             "method": "mobile_money",
             "network": req.network,
-            "phone_number": req.phone_number,
-            "hash": hash(f"{req.member_id}{req.amount}{req.phone_number}{time.time()}")
+            "phone_number": req.phone_number
         }
+        new_tx["hash"] = compute_transaction_hash(new_tx)
         data.append(new_tx)
 
         with open(AUDIT_LOG, "w") as f:
             json.dump(data, f, indent=2)
 
         return {"success": True, "transaction": new_tx}
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error simulating mobile money: {str(e)}")
