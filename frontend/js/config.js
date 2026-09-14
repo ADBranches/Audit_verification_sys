@@ -7,6 +7,6 @@ window.AUDIT_APP_CONFIG = Object.freeze({
   demoSummary: Object.freeze({
     recordedTransactions: 2,
     verifiedTransactions: 2,
-    integrityStatus: "Integrity API not implemented"
+    integrityStatus: "Deterministic SHA-256 verification available"
   })
 });

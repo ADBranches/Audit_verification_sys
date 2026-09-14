@@ -128,3 +128,16 @@ def test_design_system_contains_responsive_and_accessible_rules():
     )
     for required_rule in required_rules:
         assert required_rule in stylesheet
+
+
+def test_dashboard_uses_integrity_verification_api():
+    dashboard_script = (FRONTEND_ROOT / "index.js").read_text(encoding="utf-8")
+    dashboard_page = (FRONTEND_ROOT / "index.html").read_text(encoding="utf-8")
+    configuration = (FRONTEND_ROOT / "js" / "config.js").read_text(encoding="utf-8")
+    assert "/verify/${encodeURIComponent(transactionId)}" in dashboard_script
+    assert "Verifying transaction integrity..." in dashboard_script
+    assert "passed integrity verification" in dashboard_script
+    assert "failed integrity verification" in dashboard_script
+    assert "Integrity verification available" in dashboard_page
+    assert "Deterministic SHA-256 verification available" in configuration
+    assert "Integrity status unavailable" not in dashboard_page

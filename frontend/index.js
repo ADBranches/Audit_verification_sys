@@ -65,30 +65,58 @@ document.getElementById("mobileMoneyForm").addEventListener("submit", async (e) 
 
 // ---------------- TRANSACTION VERIFICATION ----------------
 
-document.getElementById("verifyForm")?.addEventListener("submit", async (e) => {
-  e.preventDefault();
+document.getElementById("verifyForm")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
 
-  const txId = document.getElementById("verify_id").value.trim();
+  const transactionId = document.getElementById("verify_id").value.trim();
   const responseBox = document.getElementById("verifyResponse");
+  const submitButton = event.currentTarget.querySelector("button[type=\"submit\"]");
+
+  window.AuditUi.setStatus(responseBox, "Verifying transaction integrity...", "info");
+  window.AuditUi.setBusy(submitButton, true, "Verifying...");
 
   try {
-    const res = await fetch(`${window.AUDIT_APP_CONFIG.apiBaseUrl}/transactions`);
-    if (!res.ok) {
-      const error = await res.json();
-      responseBox.textContent = "❌ " + error.detail;
+    const response = await fetch(
+      `${window.AUDIT_APP_CONFIG.apiBaseUrl}/verify/${encodeURIComponent(transactionId)}`
+    );
+
+    let payload = {};
+    try {
+      payload = await response.json();
+    } catch (_error) {
+      payload = {};
+    }
+
+    if (!response.ok) {
+      window.AuditUi.setStatus(
+        responseBox,
+        payload.detail || "The transaction could not be verified.",
+        "error"
+      );
       return;
     }
 
-    const data = await res.json();
-    const txs = data.transactions || [];
-    const found = txs.find(tx => tx.transaction_id === txId);
-
-    if (found) {
-      responseBox.textContent = "✅ Transaction found:\n" + JSON.stringify(found, null, 2);
-    } else {
-      responseBox.textContent = "❌ Transaction not found.";
+    if (payload.verified === true && payload.status === "verified") {
+      window.AuditUi.setStatus(
+        responseBox,
+        `Transaction ${payload.transaction_id} passed integrity verification.`,
+        "success"
+      );
+      return;
     }
-  } catch (err) {
-    responseBox.textContent = "❌ Error: " + err.message;
+
+    window.AuditUi.setStatus(
+      responseBox,
+      `Transaction ${payload.transaction_id} failed integrity verification and may have been altered.`,
+      "error"
+    );
+  } catch (_error) {
+    window.AuditUi.setStatus(
+      responseBox,
+      "The integrity verification service is unavailable. Try again later.",
+      "error"
+    );
+  } finally {
+    window.AuditUi.setBusy(submitButton, false);
   }
 });
