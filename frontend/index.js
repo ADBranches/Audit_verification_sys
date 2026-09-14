@@ -34,7 +34,7 @@ document.getElementById("mobileMoneyForm").addEventListener("submit", async (e) 
     // Step 2: Simulate short delay before backend call
     setTimeout(async () => {
       try {
-        const res = await fetch("http://127.0.0.1:8000/mobile_money", {
+        const res = await fetch("http://127.0.0.1:8000/record_mobile", {
           method: "POST",
           headers: {"Content-Type": "application/json"},
           body: JSON.stringify({
@@ -53,7 +53,8 @@ document.getElementById("mobileMoneyForm").addEventListener("submit", async (e) 
         }
 
         const result = await res.json();
-        responseBox.textContent = "✅ " + result.transaction.network + " payment recorded!";
+        responseBox.textContent = "✅ " + network + " payment recorded!\n" +
+          JSON.stringify(result, null, 2);
       } catch (err) {
         responseBox.textContent = "❌ Error: " + err.message;
       }
@@ -72,22 +73,15 @@ document.getElementById("verifyForm")?.addEventListener("submit", async (e) => {
   const responseBox = document.getElementById("verifyResponse");
 
   try {
-    const res = await fetch("http://127.0.0.1:8000/transactions");
+    const res = await fetch(`http://127.0.0.1:8000/verify/${txId}`);
     if (!res.ok) {
       const error = await res.json();
-      responseBox.textContent = "❌ " + error.detail;
+      responseBox.textContent = "❌ " + (error.detail || JSON.stringify(error));
       return;
     }
 
-    const data = await res.json();
-    const txs = data.transactions || [];
-    const found = txs.find(tx => tx.transaction_id === txId);
-
-    if (found) {
-      responseBox.textContent = "✅ Transaction found:\n" + JSON.stringify(found, null, 2);
-    } else {
-      responseBox.textContent = "❌ Transaction not found.";
-    }
+    const result = await res.json();
+    responseBox.textContent = "✅ Transaction verification:\n" + JSON.stringify(result, null, 2);
   } catch (err) {
     responseBox.textContent = "❌ Error: " + err.message;
   }

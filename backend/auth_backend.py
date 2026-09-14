@@ -43,6 +43,7 @@ def save_members(members):
     with open(MEMBERS_FILE, "w") as f:
         json.dump(members, f, indent=2)
 
+# ---------------- DATA MODELS ----------------
 class LoginRequest(BaseModel):
     member_id: str
     password: str
@@ -105,7 +106,6 @@ def admin_verify(req: AdminVerifyRequest):
         raise HTTPException(status_code=401, detail="Invalid code")
     del admin_codes[req.member_id]
     return {"success": True, "message": "Admin login successful"}
-
 # ---------------- MEMBER LOGIN ----------------
 @app.post("/member_login")
 def member_login(req: LoginRequest):
@@ -208,7 +208,6 @@ def modify_member(member_id: str, req: ModifyMemberRequest):
     }
     save_members(members)
     return {"success": True, "message": f"Member {member_id} modified to {req.new_member_id} successfully"}
-
 # ---------------- TRANSACTIONS ----------------
 @app.get("/transactions")
 def get_transactions():
@@ -239,8 +238,60 @@ def add_transaction(tx: Transaction):
         "member_id": tx.member_id,
         "description": tx.description,
         "method": tx.method,
+        "phone_number": tx.phone_number
     }
     data.append(new_tx)
     with open(AUDIT_LOG, "w") as f:
-        json.dump(data, f)
+        json.dump(data, f, indent=2)
     return {"success": True, "message": "Transaction added successfully"}
+
+# ---------------- MOBILE MONEY ----------------
+@app.post("/record_mobile")
+def record_mobile(req: MobileMoneyRequest):
+    try:
+        # Load existing transactions
+        try:
+            with open(AUDIT_LOG, "r") as f:
+                data = json.load(f)
+        except FileNotFoundError:
+            data = []
+
+        # Generate a transaction ID
+        tx_id = f"MM{int(time.time())}{random.randint(100,999)}"
+
+        new_tx = {
+            "transaction_id": tx_id,
+            "amount": req.amount,
+            "member_id": req.member_id,
+            "description": req.description,
+            "method": "mobile_money",
+            "phone_number": req.phone_number,
+            "network": req.network,
+            "timestamp": datetime.now().isoformat()
+        }
+
+        data.append(new_tx)
+        with open(AUDIT_LOG, "w") as f:
+            json.dump(data, f, indent=2)
+
+        return {"success": True, "message": "Mobile money transaction recorded", "transaction": new_tx}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ---------------- VERIFY TRANSACTION ----------------
+@app.get("/verify/{transaction_id}")
+def verify_transaction(transaction_id: str):
+    try:
+        with open(AUDIT_LOG, "r") as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="No transactions found")
+
+    if not isinstance(data, list):
+        raise HTTPException(status_code=404, detail="Invalid transaction log format")
+
+    for tx in data:
+        if tx.get("transaction_id") == transaction_id:
+            return {"success": True, "transaction": tx}
+
+    raise HTTPException(status_code=404, detail="Transaction not found")

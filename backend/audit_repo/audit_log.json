@@ -134,5 +134,61 @@
     "method": "withdraw",
     "phone_number": "0765541847",
     "hash": -7627820210687823406
+  },
+  {
+    "transaction_id": "MM1789398673784",
+    "amount": 50000.0,
+    "member_id": "M001",
+    "description": "Welfare Contribution",
+    "method": "mobile_money",
+    "phone_number": "0751631327",
+    "network": "Airtel Money",
+    "timestamp": "2026-09-14T18:11:13.875932"
+  },
+  {
+    "transaction_id": "WD-1789398838491",
+    "amount": -85000.0,
+    "member_id": "M003",
+    "description": "Loan",
+    "method": "withdraw",
+    "phone_number": "0753452626"
+  },
+  {
+    "transaction_id": "MM1789400803379",
+    "amount": 60000.0,
+    "member_id": "M001",
+    "description": "Annual Subscription",
+    "method": "mobile_money",
+    "phone_number": "0765541847",
+    "network": "MTN MoMo",
+    "timestamp": "2026-09-14T18:46:43.491214"
+  },
+  {
+    "transaction_id": "MM1789400823234",
+    "amount": 60000.0,
+    "member_id": "M001",
+    "description": "Annual Subscription",
+    "method": "mobile_money",
+    "phone_number": "0765541847",
+    "network": "MTN MoMo",
+    "timestamp": "2026-09-14T18:47:03.895076"
+  },
+  {
+    "transaction_id": "MM1789401985492",
+    "amount": 200000.0,
+    "member_id": "M001",
+    "description": "Loan Application Fee",
+    "method": "mobile_money",
+    "phone_number": "0751631327",
+    "network": "Airtel Money",
+    "timestamp": "2026-09-14T19:06:25.764065"
+  },
+  {
+    "transaction_id": "WD-1789402061486",
+    "amount": -4000.0,
+    "member_id": "M001",
+    "description": "Loan application fee",
+    "method": "withdraw",
+    "phone_number": "0753588167"
   }
 ]
