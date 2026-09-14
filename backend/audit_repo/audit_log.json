@@ -61,5 +61,78 @@
     "created_at": "2026-09-03 20:35:17",
     "method": "Mobile Money",
     "hash": "462c6e80d2256cd6bea44dd232237151d653730984f5b51c5d159a4ecc4d04b5"
+  },
+  {
+    "transaction_id": "MM-1788952489",
+    "amount": 3000.0,
+    "member_id": "M001",
+    "description": "Entry/Membership Fee",
+    "date_time": "2026-09-09T14:14:49.994611",
+    "method": "mobile_money",
+    "network": "Airtel Money",
+    "phone_number": "0751631327",
+    "hash": -4333102340398946235
+  },
+  {
+    "transaction_id": "MM-1788957758",
+    "amount": 30000.0,
+    "member_id": "M001",
+    "description": "Shares (Capital)",
+    "date_time": "2026-09-09T15:42:38.992584",
+    "method": "mobile_money",
+    "network": "Airtel Money",
+    "phone_number": "0751631327",
+    "hash": -3914571602158866085
+  },
+  {
+    "transaction_id": "MM-1789023557",
+    "amount": 500000.0,
+    "member_id": "M001",
+    "description": "Annual Subscription",
+    "date_time": "2026-09-10T09:59:17.132537",
+    "method": "mobile_money",
+    "network": "Airtel Money",
+    "phone_number": "0751631327",
+    "hash": 1904922007155734476
+  },
+  {
+    "transaction_id": "WD-1789025595740",
+    "amount": -40000.0,
+    "member_id": "M003",
+    "description": "LOAN",
+    "date_time": "2026-09-10T10:33:15.806708",
+    "method": "withdraw",
+    "hash": 2274324747190544593
+  },
+  {
+    "transaction_id": "MM-1789035763",
+    "amount": 60000.0,
+    "member_id": "M001",
+    "description": "Shares (Capital)",
+    "date_time": "2026-09-10T13:22:43.508295",
+    "method": "mobile_money",
+    "network": "MTN MoMo",
+    "phone_number": "0765541847",
+    "hash": -8318263399791645287
+  },
+  {
+    "transaction_id": "WD-1789113485311",
+    "amount": -60000.0,
+    "member_id": "M004",
+    "description": "Loan",
+    "date_time": "2026-09-11T10:58:05.324924",
+    "method": "withdraw",
+    "phone_number": "0753588178",
+    "hash": -574251621949878182
+  },
+  {
+    "transaction_id": "WD-1789116942356",
+    "amount": -30000.0,
+    "member_id": "M005",
+    "description": "Loan",
+    "date_time": "2026-09-11T11:55:42.366328",
+    "method": "withdraw",
+    "phone_number": "0765541847",
+    "hash": -7627820210687823406
   }
 ]
